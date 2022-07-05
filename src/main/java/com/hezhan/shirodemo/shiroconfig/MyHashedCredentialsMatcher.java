@@ -10,10 +10,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.LockedAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 
 import javax.annotation.Resource;
@@ -43,15 +40,15 @@ public class MyHashedCredentialsMatcher extends HashedCredentialsMatcher {
         if (atomicInteger == null){
             atomicInteger = new AtomicInteger(0);
         }
+        User user = userService.getUserByName(userName);
         if (atomicInteger.incrementAndGet() > MAX){
             // 如果用户登录失败次数大于5次，抛出锁定用户异常，并修改数据库用户状态字段
-            User user = userService.getUserByName(userName);
-            if (user != null){
+            if (user != null && user.getState() != 1){
                 user.setState(1);// 设置为锁定状态
                 userService.updateById(user);
-                log.info("锁定用户"+ userName);
-                throw new LockedAccountException();
             }
+            log.info("锁定用户"+ userName);
+            throw new ExcessiveAttemptsException();
         }
         // 判断用户的账号和密码是否正确
         boolean matches = super.doCredentialsMatch(token, info);
@@ -59,9 +56,11 @@ public class MyHashedCredentialsMatcher extends HashedCredentialsMatcher {
             // 如果匹配上了
             redisUtil.delete(key);
             // 将用户的状态改为0
-            userService.updateUserState(userName, 0);
+            if (user.getState() != 0){
+                userService.updateUserState(user.getId(), 0);
+            }
         } else {
-            redisUtil.set(key, atomicInteger);
+            redisUtil.set(key, atomicInteger, 300);
         }
         return matches;
     }

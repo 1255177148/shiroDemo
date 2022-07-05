@@ -4,6 +4,8 @@ log:
 
 server:
   port: 9090
+  servlet:
+    context-path: /shiroDemo
 spring:
   datasource:
     url: jdbc:p6spy:mysql://127.0.0.1:3306/shiroDemo?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowMultiQueries=true
@@ -29,9 +31,12 @@ spring:
     host: 127.0.0.1
     # lettuce连接池配置
     lettuce:
+      cluster:
+        refresh:
+          # 设置拓扑刷新
+          adaptive: true
+          period: 60s
       pool:
-        # 连接池最大阻塞等待时间
-        max-wait: 1000ms
         # 最大空闲数
         max-idle: 8
         # 最小空闲数
