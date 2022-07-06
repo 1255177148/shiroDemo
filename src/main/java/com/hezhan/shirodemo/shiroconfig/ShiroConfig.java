@@ -14,7 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
 import javax.annotation.Resource;
+import javax.servlet.Filter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
@@ -28,12 +30,23 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setLoginUrl("/api/login");
-        Map<String, String> filterMap = new HashMap<>();
+        Map<String, Filter> filterMap = new HashMap<>();
+        filterMap.put("cors", new CorsFilter());
+        filterMap.put("jwt", new JWTFilter());
+        shiroFilterFactoryBean.setFilters(filterMap);
+        /*
+        因为这里配置的路径和拦截规则，是需要按照顺序的，所以使用LinkedHashMap而不是HashMap
+         */
+        Map<String, String> map = new LinkedHashMap<>();
         // authc:所有url都必须认证通过才可以访问，anon:所有url都可以匿名访问
-        filterMap.put("/api/*", "anon");
-//        filterMap.put("/permission/*", "anon");
-        filterMap.put("/**", "authc");
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterMap);
+        map.put("/api/*", "anon");
+//        filterMap.put("/**", "authc");
+        /*
+        使用BearerHttpAuthenticationFilter过滤器来拦截，并获取请求头里的Authorization字段，
+        并将其所携带的jwt token内容包装成一个BearerToken对象，并调用login方法进入realm进行身份验证。
+         */
+        map.put("/**", "jwt");
+        shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
         return shiroFilterFactoryBean;
     }
 

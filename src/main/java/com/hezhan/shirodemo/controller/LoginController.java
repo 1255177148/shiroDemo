@@ -1,5 +1,6 @@
 package com.hezhan.shirodemo.controller;
 
+import com.hezhan.shirodemo.entity.User;
 import com.hezhan.shirodemo.model.LoginInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
@@ -14,9 +15,14 @@ public class LoginController {
 
     @GetMapping("/login")
     public String frontPage(){
-        return "首页";
+        return "未登录，跳首页去登录";
     }
 
+    /**
+     * 使用账号密码来登录，通过登录校验后，返回token
+     * @param loginInfo 登录信息
+     * @return
+     */
     @PostMapping("/login")
     public String login(@RequestBody LoginInfo loginInfo) {
         // 创建一个subject，是shiro的登录用户主体
@@ -27,7 +33,13 @@ public class LoginController {
         token.setPassword(loginInfo.getPassword().toCharArray());
         // 执行登录
         try {
+            /*
+            这里就会调用Realm去处理登录校验之类的事情，至于用哪个Realm，就看这里传入的token是哪个类的token，
+            然后由接管不同类型token的Realm去处理
+             */
             subject.login(token);
+            User user = (User) subject.getPrincipal();
+
         } catch (LockedAccountException e){
             subject.logout();
             return "账号已被锁定，请联系管理员！";

@@ -76,4 +76,14 @@ public class MyRealm extends AuthorizingRealm {
         // 这里将user作为主体存放起来，后面要用的话，可以 (User) SecurityUtils.getSubject().getPrincipal(); 这样获取
         return new SimpleAuthenticationInfo(user, user.getPassword(), ByteSource.Util.bytes(user.getName()), getName());
     }
+
+    /**
+     * <p>设置此Realm处理哪种类型的登录，这里标明处理UsernamePasswordToken类型的登录，也就是账号密码形式的登录。</p>
+     * <p>因为shiro的机制是根据subject.login(token)这个登录方法中的token类型来分配Realm</p>
+     * @return
+     */
+    @Override
+    public Class getAuthenticationTokenClass() {
+        return UsernamePasswordToken.class;
+    }
 }

@@ -17,6 +17,10 @@ public class JWTUtil {
     private static final String SECRET = "jwt+shiro+heZhan";// token的私钥
     private static final String USER_KEY = "userName";
 
+    public static String createBearerToken(String userName){
+        return "Bearer " + createToken(userName);
+    }
+
     /**
      * 创建token
      * @param userName 用户名
