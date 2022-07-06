@@ -10,15 +10,30 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.Set;
 
+@Component
+@DependsOn("myHashedCredentialsMatcher")
 public class MyRealm extends AuthorizingRealm {
 
     @Resource
     private UserService userService;
+
+    /**
+     * 构造器中配置登录校验器
+     */
+    public MyRealm(MyHashedCredentialsMatcher myHashedCredentialsMatcher) {
+        super();
+        myHashedCredentialsMatcher.setHashAlgorithmName("SHA-1");// 加密算法的名称
+        myHashedCredentialsMatcher.setHashIterations(2);// 加密的次数
+        myHashedCredentialsMatcher.setStoredCredentialsHexEncoded(true);// 是否储存为16进制
+        this.setCredentialsMatcher(myHashedCredentialsMatcher);
+    }
 
     /**
      * 授权，权限校验

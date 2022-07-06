@@ -1,22 +1,18 @@
 package com.hezhan.shirodemo.shiroconfig;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hezhan.shirodemo.entity.User;
 import com.hezhan.shirodemo.service.UserService;
 import com.hezhan.shirodemo.util.RedisUtil;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
+@Component
 public class MyHashedCredentialsMatcher extends HashedCredentialsMatcher {
 
     @Resource

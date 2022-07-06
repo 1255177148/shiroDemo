@@ -20,8 +20,8 @@ class ShiroDemoApplicationTests {
     @Test
     void initUser() {
         User user = new User();
-        user.setName("he");
-        user.setPassword(EncryptionUtil.encryption("123456", "he"));
+        user.setName("zhan");
+        user.setPassword(EncryptionUtil.encryption("123456789", "zhan"));
         user.setState(0);
         userService.save(user);
     }
