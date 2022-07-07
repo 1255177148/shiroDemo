@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.AuthenticationException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -57,14 +58,14 @@ public class JWTUtil {
      * @param token 传入的token
      * @return 是否校验通过
      */
-    public static boolean verifyToken(String token){
+    public static boolean verifyToken(String token) throws AuthenticationException {
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(SECRET)).build();
             verifier.verify(token);
             return true;
         } catch (Exception e){
             log.error("校验token={}失败", token, e);
-            return false;
+            throw e;
         }
     }
 
@@ -81,6 +82,14 @@ public class JWTUtil {
             log.error("从token={}中获取用户信息失败", token, e);
             return null;
         }
+    }
+
+    /**
+     * 判断是否过期
+     */
+    public static boolean isExpire(String token) {
+        DecodedJWT jwt = JWT.decode(token);
+        return jwt.getExpiresAt().getTime() < System.currentTimeMillis();
     }
 
     public static void main(String[] args){

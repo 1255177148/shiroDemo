@@ -1,4 +1,4 @@
-package com.hezhan.shirodemo.shiroconfig;
+package com.hezhan.shirodemo.shiroconfig.matcher;
 
 import com.hezhan.shirodemo.entity.User;
 import com.hezhan.shirodemo.service.UserService;

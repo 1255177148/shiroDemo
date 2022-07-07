@@ -1,23 +1,23 @@
 package com.hezhan.shirodemo.shiroconfig;
 
+import com.hezhan.shirodemo.shiroconfig.filter.CorsFilter;
+import com.hezhan.shirodemo.shiroconfig.filter.JWTFilter;
+import com.hezhan.shirodemo.shiroconfig.matcher.MyHashedCredentialsMatcher;
+import com.hezhan.shirodemo.shiroconfig.realm.MyModularRealmAuthenticator;
+import com.hezhan.shirodemo.shiroconfig.realm.MyRealm;
+import org.apache.shiro.authc.Authenticator;
+import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
+import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.authz.Authorizer;
+import org.apache.shiro.authz.ModularRealmAuthorizer;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.mgt.SessionsSecurityManager;
-import org.apache.shiro.spring.LifecycleBeanPostProcessor;
-import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
-import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import javax.annotation.Resource;
 import javax.servlet.Filter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Configuration
 public class ShiroConfig {
@@ -40,19 +40,29 @@ public class ShiroConfig {
         Map<String, String> map = new LinkedHashMap<>();
         // authc:所有url都必须认证通过才可以访问，anon:所有url都可以匿名访问
         map.put("/api/*", "anon");
-//        filterMap.put("/**", "authc");
+//        map.put("/**", "authc");
         /*
         使用BearerHttpAuthenticationFilter过滤器来拦截，并获取请求头里的Authorization字段，
         并将其所携带的jwt token内容包装成一个BearerToken对象，并调用login方法进入realm进行身份验证。
          */
         map.put("/**", "jwt");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
+        shiroFilterFactoryBean.setGlobalFilters(Collections.singletonList("noSessionCreation"));//关键：全局配置NoSessionCreationFilter，把整个项目切换成无状态服务。
         return shiroFilterFactoryBean;
     }
 
     @Bean
     public Authorizer authorizer(){
-        return new MyRealm(myHashedCredentialsMatcher);
+        return new ModularRealmAuthorizer();
+    }
+
+    /**
+     * 设置多个realm处理登录时可以抛出异常
+     * @return
+     */
+    @Bean
+    public Authenticator authenticator(){
+        return new MyModularRealmAuthenticator();
     }
 
 //    /**

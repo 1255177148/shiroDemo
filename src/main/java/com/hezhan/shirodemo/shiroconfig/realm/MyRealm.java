@@ -1,7 +1,8 @@
-package com.hezhan.shirodemo.shiroconfig;
+package com.hezhan.shirodemo.shiroconfig.realm;
 
 import com.hezhan.shirodemo.entity.User;
 import com.hezhan.shirodemo.service.UserService;
+import com.hezhan.shirodemo.shiroconfig.matcher.MyHashedCredentialsMatcher;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;

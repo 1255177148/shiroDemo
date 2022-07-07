@@ -1,12 +1,17 @@
 package com.hezhan.shirodemo.controller;
 
 import com.hezhan.shirodemo.entity.User;
+import com.hezhan.shirodemo.enums.ConstantEnum;
 import com.hezhan.shirodemo.model.LoginInfo;
+import com.hezhan.shirodemo.util.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @Slf4j
@@ -24,7 +29,7 @@ public class LoginController {
      * @return
      */
     @PostMapping("/login")
-    public String login(@RequestBody LoginInfo loginInfo) {
+    public String login(@RequestBody LoginInfo loginInfo, HttpServletResponse response) {
         // 创建一个subject，是shiro的登录用户主体
         Subject subject = SecurityUtils.getSubject();
         // 认证提交前准备token
@@ -39,7 +44,8 @@ public class LoginController {
              */
             subject.login(token);
             User user = (User) subject.getPrincipal();
-
+            String tokenString = JWTUtil.createBearerToken(user.getName());
+            response.setHeader(ConstantEnum.AUTHORIZATION.getValue(), tokenString);
         } catch (LockedAccountException e){
             subject.logout();
             return "账号已被锁定，请联系管理员！";
@@ -69,5 +75,16 @@ public class LoginController {
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
         return "退出登录！";
+    }
+
+    @GetMapping("/loginError")
+    public String loginError(HttpServletResponse response) {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return "未登录！";
+    }
+
+    @GetMapping("/loginExpire")
+    public String loginExpire(){
+        return "token已过期，请重新登录！";
     }
 }
