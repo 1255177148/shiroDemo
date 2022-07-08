@@ -1,29 +1,25 @@
 package com.hezhan.shirodemo.shiroconfig;
 
+import com.hezhan.shirodemo.shiroconfig.factory.MySubjectFactory;
 import com.hezhan.shirodemo.shiroconfig.filter.CorsFilter;
 import com.hezhan.shirodemo.shiroconfig.filter.JWTFilter;
-import com.hezhan.shirodemo.shiroconfig.matcher.MyHashedCredentialsMatcher;
 import com.hezhan.shirodemo.shiroconfig.realm.MyModularRealmAuthenticator;
-import com.hezhan.shirodemo.shiroconfig.realm.MyRealm;
+import com.hezhan.shirodemo.shiroconfig.subject.MySubjectDAO;
 import org.apache.shiro.authc.Authenticator;
-import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
-import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.authz.Authorizer;
 import org.apache.shiro.authz.ModularRealmAuthorizer;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.mgt.SubjectDAO;
+import org.apache.shiro.mgt.SubjectFactory;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
 import javax.servlet.Filter;
 import java.util.*;
 
 @Configuration
 public class ShiroConfig {
-
-    @Resource
-    private MyHashedCredentialsMatcher myHashedCredentialsMatcher;
 
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager){
@@ -47,8 +43,23 @@ public class ShiroConfig {
          */
         map.put("/**", "jwt");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
-        shiroFilterFactoryBean.setGlobalFilters(Collections.singletonList("noSessionCreation"));//关键：全局配置NoSessionCreationFilter，把整个项目切换成无状态服务。
+        // 下面注释的那个，全局配置的禁用session的不管用，需要再覆盖两个Bean注入，注入的方法往下看
+//        shiroFilterFactoryBean.setGlobalFilters(Collections.singletonList("noSessionCreation"));//关键：全局配置NoSessionCreationFilter，把整个项目切换成无状态服务。
         return shiroFilterFactoryBean;
+    }
+
+    /*
+    下面两个Bean(subjectDAO和subjectFactory)，作用是关闭Subject的session
+     */
+
+    @Bean
+    public SubjectDAO subjectDAO(){
+        return new MySubjectDAO();
+    }
+
+    @Bean
+    public SubjectFactory subjectFactory(){
+        return new MySubjectFactory();
     }
 
     @Bean
