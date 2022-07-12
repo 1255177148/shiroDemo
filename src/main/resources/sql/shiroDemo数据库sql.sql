@@ -16,11 +16,11 @@
 
 
 -- 导出 shirodemo 的数据库结构
-DROP DATABASE IF EXISTS `shirodemo`;
-CREATE DATABASE IF NOT EXISTS `shirodemo` /*!40100 DEFAULT CHARACTER SET utf8mb3 */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `shirodemo`;
+DROP DATABASE IF EXISTS `shiro_demo`;
+CREATE DATABASE IF NOT EXISTS `shiro_demo` /*!40100 DEFAULT CHARACTER SET utf8mb3 */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `shiro_demo`;
 
--- 导出  表 shirodemo.user 结构
+-- 导出  表 shiro_demo.user 结构
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int NOT NULL AUTO_INCREMENT,
